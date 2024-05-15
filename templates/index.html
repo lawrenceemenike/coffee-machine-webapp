@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Coffee Machine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Coffee Machine</h1>
+        <div class="menu">
+            <h2>Menu</h2>
+            <form id="order-form">
+                <label>
+                    <input type="radio" name="drink" value="espresso" required>
+                    Espresso - $1.50
+                </label>
+                <label>
+                    <input type="radio" name="drink" value="latte">
+                    Latte - $2.50
+                </label>
+                <label>
+                    <input type="radio" name="drink" value="cappuccino">
+                    Cappuccino - $3.00
+                </label>
+                <div class="coin-input">
+                    <label>
+                        Quarters:
+                        <input type="number" name="quarters" min="0" value="0">
+                    </label>
+                    <label>
+                        Dimes:
+                        <input type="number" name="dimes" min="0" value="0">
+                    </label>
+                    <label>
+                        Nickles:
+                        <input type="number" name="nickles" min="0" value="0">
+                    </label>
+                    <label>
+                        Pennies:
+                        <input type="number" name="pennies" min="0" value="0">
+                    </label>
+                </div>
+                <button type="submit">Order</button>
+            </form>
+        </div>
+        <div class="report">
+            <h2>Report</h2>
+            <p>Water: {{ resources.water }} ml</p>
+            <p>Milk: {{ resources.milk }} ml</p>
+            <p>Coffee: {{ resources.coffee }} g</p>
+            <p>Money: ${{ profit }}</p>
+        </div>
+        <div id="message"></div>
+    </div>
+    <script>
+        const orderForm = document.getElementById('order-form');
+        const messageDiv = document.getElementById('message');
+
+        orderForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(orderForm);
+            fetch('/order', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    messageDiv.textContent = data.message;
+                    setTimeout(() => {
+                        messageDiv.textContent = '';
+                        location.reload();
+                    }, 3000);
+                } else {
+                    messageDiv.textContent = data.message;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                messageDiv.textContent = 'An error occurred. Please try again later.';
+            });
+        });
+    </script>
+</body>
+</html>
